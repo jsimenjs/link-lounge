@@ -35,7 +35,3 @@ function connectWebSocket() {
 
 connectWebSocket()
 
-chat.style = `
-height: 50vh;
-width: max-content;
-`
