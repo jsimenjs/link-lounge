@@ -1,8 +1,13 @@
 import { FormEvent, useEffect, useRef, useState } from 'react'
 import './App.css'
 
+type ChatEvent = {
+    type: string
+    payload: string
+}
+
 function App() {
-    const [chatHistory, setChatHistory] = useState("");
+    const [chatHistory, setChatHistory] = useState<ChatEvent[]>([]);
     const [chatInput, setChatInput] = useState("")
     const [ws, setWs] = useState<WebSocket | null>(null)
     const wsRef = useRef<WebSocket | null>(null)
@@ -15,16 +20,21 @@ function App() {
         }
 
         wsRef.current.onmessage = (event) => {
-            let date = new Date(Date.now())
-            setChatHistory(chatHistory => chatHistory + `\n[${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}]: ${event.data}`)
+            //const date = new Date(Date.now())
+            //const timestamp = `[${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}]`
+            const chatEvent: ChatEvent = JSON.parse(event.data)
+            console.log(chatEvent)
+            setChatHistory(chatHistory => chatHistory.concat(chatEvent))
         }
 
         wsRef.current.onopen = () => {
-            setChatHistory(chatHistory => chatHistory + '=> Connected.')
+            const chatEvent: ChatEvent = { type: "status", payload: 'Connected.' }
+            setChatHistory(chatHistory => chatHistory.concat(chatEvent))
         }
 
         wsRef.current.onclose = () => {
-            setChatHistory(chatHistory => chatHistory + '\n=> Connection closed. ')
+            const chatEvent: ChatEvent = { type: "status", payload: 'Connection closed.' }
+            setChatHistory(chatHistory => chatHistory.concat(chatEvent))
         }
         return () => {
             if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -36,19 +46,53 @@ function App() {
     const submitHandler = (e: FormEvent) => {
         e.preventDefault()
         if (ws === null || ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED) return
-        ws.send(chatInput)
+        const chatEvent: ChatEvent = { type: 'user-event', payload: chatInput }
+        ws.send(JSON.stringify(chatEvent))
         setChatInput("")
     }
 
     return (
         <>
             <h1>Chat</h1>
-            <textarea value={chatHistory} readOnly />
+            <div>
+                {chatHistory.map((chatEvent: ChatEvent, index: number) => {
+                    return <ChatEvent key={index} chatEvent={chatEvent} />
+                })}
+            </div>
             <form onSubmit={(e) => submitHandler(e)}>
                 <input type="text" value={chatInput} onChange={(e) => { setChatInput(e.target.value) }} />
                 <button>Send</button>
             </form>
         </>
+    )
+}
+
+type ChatEventProps = {
+    chatEvent: ChatEvent
+}
+
+const ChatEvent = (props: ChatEventProps) => {
+    const { chatEvent } = props
+    if (chatEvent.type === 'user-event') {
+        return <ChatMessage message={chatEvent.payload} />
+
+    }
+    if (chatEvent.type === 'status') {
+        return <ChatMessage message={'> ' + chatEvent.payload} />
+    }
+    return (
+        <></>
+    )
+}
+
+type ChatMessageProps = {
+    message: string
+}
+
+const ChatMessage = (props: ChatMessageProps) => {
+    const { message } = props
+    return (
+        <p>{message}</p>
     )
 }
 
