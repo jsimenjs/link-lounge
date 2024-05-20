@@ -11,37 +11,57 @@ function App() {
     const [chatInput, setChatInput] = useState("")
     const [ws, setWs] = useState<WebSocket | null>(null)
     const wsRef = useRef<WebSocket | null>(null)
+    const [destination, setDestination] = useState("general");
+    const [roomId, setRoomId] = useState("")
+
+    function bytesToBase64(bytes: Uint8Array) {
+        const binString = Array.from(bytes, (byte) =>
+            String.fromCodePoint(byte),
+        ).join("");
+        return btoa(binString);
+    }
 
     useEffect(() => {
-        if (!wsRef.current || wsRef.current.readyState === WebSocket.CLOSED) {
-            const ws = new WebSocket('ws://localhost:8080/ws');
+        console.log('ws useEffect triggered')
+        if (roomId === "") { return }
+        if (!wsRef.current || wsRef.current.readyState === WebSocket.CLOSED || wsRef.current.readyState === WebSocket.CLOSING) {
+            console.log(`Opening a new ws connection to id: ${roomId}`)
+            const ws = new WebSocket(`ws://localhost:8080/${bytesToBase64(new TextEncoder().encode(roomId))}/ws`);
             wsRef.current = ws
+            wsRef.current.onmessage = (event) => {
+                //const date = new Date(Date.now())
+                //const timestamp = `[${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}]`
+                const chatEvent: ChatEvent = JSON.parse(event.data)
+                console.log(chatEvent)
+                setChatHistory(chatHistory => chatHistory.concat(chatEvent))
+            }
+
+            wsRef.current.onopen = () => {
+                const chatEvent: ChatEvent = { type: "status", payload: 'Connected.' }
+                setChatHistory(chatHistory => chatHistory.concat(chatEvent))
+            }
+
+            wsRef.current.onclose = () => {
+                const chatEvent: ChatEvent = { type: "status", payload: 'Connection closed.' }
+                setChatHistory(chatHistory => chatHistory.concat(chatEvent))
+            }
             setWs(ws)
         }
 
-        wsRef.current.onmessage = (event) => {
-            //const date = new Date(Date.now())
-            //const timestamp = `[${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}]`
-            const chatEvent: ChatEvent = JSON.parse(event.data)
-            console.log(chatEvent)
-            setChatHistory(chatHistory => chatHistory.concat(chatEvent))
-        }
-
-        wsRef.current.onopen = () => {
-            const chatEvent: ChatEvent = { type: "status", payload: 'Connected.' }
-            setChatHistory(chatHistory => chatHistory.concat(chatEvent))
-        }
-
-        wsRef.current.onclose = () => {
-            const chatEvent: ChatEvent = { type: "status", payload: 'Connection closed.' }
-            setChatHistory(chatHistory => chatHistory.concat(chatEvent))
-        }
         return () => {
             if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+                console.log('ws cleanup function: closing ws connection')
                 wsRef.current.close()
+                return
             }
+            console.log('ws cleanup function: no action')
         }
-    }, [])
+    }, [roomId])
+
+    const navigateHandler = (e: FormEvent) => {
+        e.preventDefault()
+        setRoomId(destination)
+    }
 
     const submitHandler = (e: FormEvent) => {
         e.preventDefault()
@@ -54,6 +74,12 @@ function App() {
     return (
         <>
             <h1>Chat</h1>
+            <h2 id="location">Location: {roomId !== "" ? roomId : "N/A"}</h2>
+            <form onSubmit={navigateHandler}>
+                <label htmlFor="destination">Destination: </label>
+                <input id="destination" type="text" placeholder="Paste link" onChange={(e) => { setDestination(e.target.value) }}></input>
+                <button>Go</button>
+            </form>
             <div>
                 {chatHistory.map((chatEvent: ChatEvent, index: number) => {
                     return <ChatEvent key={index} chatEvent={chatEvent} />
