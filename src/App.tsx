@@ -8,7 +8,6 @@ type ChatEvent = {
 
 function App() {
     const [chatHistory, setChatHistory] = useState<ChatEvent[]>([]);
-    const [chatInput, setChatInput] = useState("")
     const [ws, setWs] = useState<WebSocket | null>(null)
     const wsRef = useRef<WebSocket | null>(null)
     const [roomId, setRoomId] = useState("")
@@ -58,6 +57,31 @@ function App() {
     }, [roomId])
 
 
+
+    return (
+        <>
+            <h1>Chat</h1>
+            <h2 id="location">Location: {roomId !== "" ? roomId : "N/A"}</h2>
+            <NavigationForm setRoomId={setRoomId} />
+            <div>
+                {chatHistory.map((chatEvent: ChatEvent, index: number) => {
+                    return <ChatEvent key={index} chatEvent={chatEvent} />
+                })}
+            </div>
+            <MessageForm ws={ws} />
+        </>
+    )
+}
+
+type MessageFormProps = {
+    ws: WebSocket | null
+}
+
+
+const MessageForm = (props: MessageFormProps) => {
+    const { ws } = props
+    const [chatInput, setChatInput] = useState("")
+
     const submitHandler = (e: FormEvent) => {
         e.preventDefault()
         if (ws === null || ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED) return
@@ -67,20 +91,10 @@ function App() {
     }
 
     return (
-        <>
-            <h1>Chat</h1>
-            <h2 id="location">Location: {roomId !== "" ? roomId : "N/A"}</h2>
-            <NavigationForm setRoomId={setRoomId}/>
-            <div>
-                {chatHistory.map((chatEvent: ChatEvent, index: number) => {
-                    return <ChatEvent key={index} chatEvent={chatEvent} />
-                })}
-            </div>
-            <form onSubmit={(e) => submitHandler(e)}>
-                <input type="text" value={chatInput} onChange={(e) => { setChatInput(e.target.value) }} />
-                <button>Send</button>
-            </form>
-        </>
+        <form onSubmit={(e) => submitHandler(e)}>
+            <input type="text" value={chatInput} onChange={(e) => { setChatInput(e.target.value) }} />
+            <button>Send</button>
+        </form >
     )
 }
 
