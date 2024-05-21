@@ -60,10 +60,10 @@ function App() {
 
     return (
         <>
-            <h1>Chat</h1>
+            <h1 className='text-3xl'>Chat</h1>
             <h2 id="location">Location: {roomId !== "" ? roomId : "N/A"}</h2>
             <NavigationForm setRoomId={setRoomId} />
-            <div>
+            <div className='border border-black'>
                 {chatHistory.map((chatEvent: ChatEvent, index: number) => {
                     return <ChatEvent key={index} chatEvent={chatEvent} />
                 })}
@@ -91,9 +91,9 @@ const MessageForm = (props: MessageFormProps) => {
     }
 
     return (
-        <form onSubmit={(e) => submitHandler(e)}>
-            <input type="text" value={chatInput} onChange={(e) => { setChatInput(e.target.value) }} />
-            <button>Send</button>
+        <form onSubmit={(e) => submitHandler(e)} className='flex flex-row gap-2 border border-black p-2'>
+            <input type="text" value={chatInput} onChange={(e) => { setChatInput(e.target.value) }} className='border border-black rounded' />
+            <button type="submit" className='border border-black rounded p-0.5'>Send</button>
         </form >
     )
 }
@@ -114,8 +114,8 @@ const NavigationForm = (props: NavigationFormProps) => {
     return (
         <form onSubmit={navigateHandler}>
             <label htmlFor="destination">Destination: </label>
-            <input id="destination" type="text" placeholder="Paste link" onChange={(e) => { setDestination(e.target.value) }}></input>
-            <button>Go</button>
+            <input id="destination" type="text" placeholder="Paste link" onChange={(e) => { setDestination(e.target.value) }} className='border border-black rounded'></input>
+            <button className='border border-black rounded p-0.5'>Go</button>
         </form>
     )
 }
