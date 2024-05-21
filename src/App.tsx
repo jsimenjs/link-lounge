@@ -63,20 +63,30 @@ function App() {
             <h1 className='text-3xl'>Chat</h1>
             <h2 id="location">Location: {roomId !== "" ? roomId : "N/A"}</h2>
             <NavigationForm setRoomId={setRoomId} />
-            <div className='border border-black'>
-                {chatHistory.map((chatEvent: ChatEvent, index: number) => {
-                    return <ChatEvent key={index} chatEvent={chatEvent} />
-                })}
-            </div>
+            <ChatWindow chatHistory={chatHistory} />
             <MessageForm ws={ws} />
         </>
+    )
+}
+
+type ChatWindowProps = {
+    chatHistory: ChatEvent[]
+}
+
+const ChatWindow = (props: ChatWindowProps) => {
+    const { chatHistory } = props
+    return (
+        <div className='border border-black'>
+            {chatHistory.map((chatEvent: ChatEvent, index: number) => {
+                return <ChatEvent key={index} chatEvent={chatEvent} />
+            })}
+        </div>
     )
 }
 
 type MessageFormProps = {
     ws: WebSocket | null
 }
-
 
 const MessageForm = (props: MessageFormProps) => {
     const { ws } = props
