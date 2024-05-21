@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useRef, useState } from 'react'
+import { FormEvent, SetStateAction, useEffect, useRef, useState } from 'react'
 import './App.css'
 
 type ChatEvent = {
@@ -11,7 +11,6 @@ function App() {
     const [chatInput, setChatInput] = useState("")
     const [ws, setWs] = useState<WebSocket | null>(null)
     const wsRef = useRef<WebSocket | null>(null)
-    const [destination, setDestination] = useState("general");
     const [roomId, setRoomId] = useState("")
 
     function bytesToBase64(bytes: Uint8Array) {
@@ -58,10 +57,6 @@ function App() {
         }
     }, [roomId])
 
-    const navigateHandler = (e: FormEvent) => {
-        e.preventDefault()
-        setRoomId(destination)
-    }
 
     const submitHandler = (e: FormEvent) => {
         e.preventDefault()
@@ -75,11 +70,7 @@ function App() {
         <>
             <h1>Chat</h1>
             <h2 id="location">Location: {roomId !== "" ? roomId : "N/A"}</h2>
-            <form onSubmit={navigateHandler}>
-                <label htmlFor="destination">Destination: </label>
-                <input id="destination" type="text" placeholder="Paste link" onChange={(e) => { setDestination(e.target.value) }}></input>
-                <button>Go</button>
-            </form>
+            <NavigationForm setRoomId={setRoomId}/>
             <div>
                 {chatHistory.map((chatEvent: ChatEvent, index: number) => {
                     return <ChatEvent key={index} chatEvent={chatEvent} />
@@ -90,6 +81,28 @@ function App() {
                 <button>Send</button>
             </form>
         </>
+    )
+}
+
+type NavigationFormProps = {
+    setRoomId: React.Dispatch<SetStateAction<string>>
+}
+
+const NavigationForm = (props: NavigationFormProps) => {
+    const { setRoomId } = props;
+    const [destination, setDestination] = useState("general");
+
+    const navigateHandler = (e: FormEvent) => {
+        e.preventDefault()
+        setRoomId(destination)
+    }
+
+    return (
+        <form onSubmit={navigateHandler}>
+            <label htmlFor="destination">Destination: </label>
+            <input id="destination" type="text" placeholder="Paste link" onChange={(e) => { setDestination(e.target.value) }}></input>
+            <button>Go</button>
+        </form>
     )
 }
 
