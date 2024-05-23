@@ -3,7 +3,9 @@ import { ChatMessageProps } from "../types"
 const ChatMessage = (props: ChatMessageProps) => {
     const { message } = props
     return (
-        <p>{message}</p>
+        <div className="p-1 hover:bg-zinc-700 rounded-md">
+            <p>{message}</p>
+        </div>
     )
 }
 

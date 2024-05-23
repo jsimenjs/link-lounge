@@ -6,7 +6,7 @@ import NavigationForm from "./NavigationForm"
 const ChatWindow = (props: ChatWindowProps) => {
     const { chatHistory, ws, setRoomId } = props
     return (
-        <div id="chat-window" className='flex flex-col gap-1 grow'>
+        <div id="chat-window" className='p-2 flex flex-col gap-1 grow border border-zinc-700 rounded-xl'>
             <NavigationForm setRoomId={setRoomId} />
             <ChatHistory chatHistory={chatHistory} />
             <MessageForm ws={ws} />

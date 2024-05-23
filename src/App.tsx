@@ -48,8 +48,8 @@ function App() {
     }, [roomId])
 
     return (
-        <div className='h-full flex flex-col gap-2 p-2'>
-            <h1 className='text-5xl'>Chat</h1>
+        <div className='h-full flex flex-col gap-2 p-4 bg-zinc-800'>
+            <h1 className='text-5xl text-white'>Chat</h1>
             <ChatWindow chatHistory={chatHistory} ws={ws} setRoomId={setRoomId} />
         </div>
     )

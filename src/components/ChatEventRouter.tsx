@@ -9,13 +9,13 @@ const ChatEventRouter = (props: ChatEventRouterProps) => {
     }
     if (chatEvent.type === 'status') {
         return (
-            <div className='bg-orange-200 rounded-md p-0.5 flex flex-row'>
-                <div className='w-full'>
+            <div className='bg-sky-500 rounded-md p-0.5 px-1 flex items-center'>
+                <div className='grow'>
                     <ChatMessage message={chatEvent.payload} />
                 </div>
-                <div className='italic opacity-50'>
-                    {chatEvent.type}
-                </div>
+                <span className='italic opacity-50'>
+                    #{chatEvent.type}
+                </span>
             </div>
         )
     }
