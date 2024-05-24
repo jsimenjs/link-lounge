@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react"
-import { ChatEvent, MessageFormProps } from "../types"
+import { MessageFormProps } from "../types"
+import { sendMessage } from "../api"
 
 const MessageForm = (props: MessageFormProps) => {
     const { ws } = props
@@ -7,9 +8,7 @@ const MessageForm = (props: MessageFormProps) => {
 
     const submitHandler = (e: FormEvent) => {
         e.preventDefault()
-        if (ws === null || ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED) return
-        const chatEvent: ChatEvent = { type: 'user-event', payload: chatInput }
-        ws.send(JSON.stringify(chatEvent))
+        sendMessage(chatInput, ws)
         setChatInput("")
     }
 
