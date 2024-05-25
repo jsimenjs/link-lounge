@@ -13,7 +13,7 @@ const MessageForm = (props: MessageFormProps) => {
     }
 
     return (
-        <form id="message-form" onSubmit={(e) => submitHandler(e)} className='flex flex-row w-full bg-zinc-700 p-2 text-lg rounded-lg'>
+        <form id="message-form" onSubmit={(e) => submitHandler(e)} className='flex flex-row w-full bg-zinc-700 text-white text-lg rounded-lg'>
             <input type="text" placeholder='Type a message' value={message} onChange={(e) => { setMessage(e.target.value) }} className='p-1 bg-zinc-800  placeholder:italic rounded-lg rounded-r-none bg-inherit w-full' />
             <button type="submit" className='p-0.5 bg-zinc-900 rounded-r-lg text-white px-2'>Send</button>
         </form >
