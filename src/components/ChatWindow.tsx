@@ -11,13 +11,14 @@ const ChatWindow = () => {
     const wsRef = useRef<WebSocket | null>(null)
     const [roomId, setRoomId] = useState("")
     const [readyState, setReadyState] = useState<number | null>(null)
+    const host = import.meta.env.DEV ? 'localhost:8080' : location.host
 
     useEffect(() => {
         console.log('ws useEffect triggered')
         if (roomId === "") { return }
         if (!wsRef.current || wsRef.current.readyState === WebSocket.CLOSED || wsRef.current.readyState === WebSocket.CLOSING) {
             console.log(`Opening a new ws connection to id: ${roomId}`)
-            const ws = new WebSocket(`ws://localhost:8080/${bytesToBase64(new TextEncoder().encode(roomId))}/ws`);
+            const ws = new WebSocket(`ws://${host}/${bytesToBase64(new TextEncoder().encode(roomId))}/ws`);
             wsRef.current = ws
             wsRef.current.onmessage = (event) => {
                 //const date = new Date(Date.now())

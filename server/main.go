@@ -26,7 +26,7 @@ func main() {
 		manager.hubs = append(manager.hubs, hub)
 		fmt.Printf("Created new hub with id: %s\n", hub.id)
 	})
-	http.Handle("/", http.FileServer(http.Dir("public")))
+	http.Handle("/", http.FileServer(http.Dir("../dist")))
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
