@@ -61,13 +61,13 @@ const ChatWindow = () => {
     }, [roomId])
 
     return (
-        <div id="chat-window" className='p-2 flex flex-col gap-2 grow bg-zinc-700 rounded-xl'>
+        <div id="chat-window" className={`p-2 flex flex-col gap-2 grow bg-zinc-700 rounded-xl` + (ws ? `` : ` grow-0`)}>
             <ChatHeader ws={ws} setRoomId={setRoomId}>
-                <Notification readyState={readyState} timeout={1000} />
+                {ws ? <Notification readyState={readyState} timeout={1000} /> : null}
                 <NavigationForm setRoomId={setRoomId} />
             </ChatHeader>
-            <ChatHistory chatHistory={chatHistory} />
-            <MessageForm ws={ws} />
+            {ws ? <ChatHistory chatHistory={chatHistory} /> : null}
+            {ws ? <MessageForm ws={ws} /> : null}
         </div>
     )
 }
