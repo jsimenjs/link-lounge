@@ -63,8 +63,8 @@ const ChatWindow = () => {
     return (
         <div id="chat-window" className='p-2 flex flex-col gap-2 grow bg-zinc-700 rounded-xl'>
             <ChatHeader ws={ws} setRoomId={setRoomId}>
+                <Notification readyState={readyState} timeout={1000} />
                 <NavigationForm setRoomId={setRoomId} />
-                {ws ? <Notification readyState={readyState} timeout={1000} /> : null}
             </ChatHeader>
             <ChatHistory chatHistory={chatHistory} />
             <MessageForm ws={ws} />
@@ -117,7 +117,7 @@ const Notification = (props: NotificationProps) => {
 
     return (
         <div className='p-2 absolute -top-1/4 w-full'>
-            <div className={`w-full p-2 rounded-md text-center ease-in-out bg-zinc-700 text-white motion-reduce:transition-none transition-all text-opacity-0` + (isVisible ? ' translate-y-12 text-opacity-100' : ' text-opacity-0')}>{renderChildren()}</div >
+            <div className={`w-full p-2 rounded-md text-center ease-in-out bg-zinc-700 text-white motion-reduce:transition-none transition-all text-opacity-0` + (isVisible ? ' translate-y-20 text-opacity-100' : ' text-opacity-0')}>{renderChildren()}</div >
         </div>
     )
 }
