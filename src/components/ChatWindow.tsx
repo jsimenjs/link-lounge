@@ -1,4 +1,4 @@
-import { PropsWithChildren, SetStateAction, useEffect, useRef, useState } from "react";
+import { MutableRefObject, PropsWithChildren, SetStateAction, useEffect, useRef, useState } from "react";
 import ChatHistory from "./ChatHistory"
 import MessageForm from "./MessageForm"
 import NavigationForm from "./NavigationForm"
@@ -10,37 +10,49 @@ const ChatWindow = () => {
     const [ws, setWs] = useState<WebSocket | null>(null)
     const wsRef = useRef<WebSocket | null>(null)
     const [roomId, setRoomId] = useState("")
-    // const [readyState, setReadyState] = useState<number | null>(null)
-    const host = import.meta.env.DEV ? 'localhost:8080' : location.host
+    const timeoutId = useRef<number | null>(null)
+    const connectionAttempt = useRef(0)
+
+    function connect(wsRef: MutableRefObject<WebSocket | null>, roomId: string) {
+        const host = import.meta.env.DEV ? 'localhost:8080' : location.host
+        const ws = new WebSocket(`ws://${host}/${bytesToBase64(new TextEncoder().encode(roomId))}/ws`);
+        wsRef.current = ws
+        wsRef.current.onmessage = (event) => {
+            const chatEvent: ChatEvent = JSON.parse(event.data)
+            console.log(chatEvent)
+            setChatHistory(chatHistory => chatHistory.concat(chatEvent))
+        }
+
+        wsRef.current.onopen = () => {
+            if (timeoutId.current) {
+                clearTimeout(timeoutId.current)
+                timeoutId.current = null
+                connectionAttempt.current = 0
+            }
+
+            const chatEvent: ChatEvent = { type: "status", payload: 'Connected.' }
+            setChatHistory(chatHistory => chatHistory.concat(chatEvent))
+        }
+
+        wsRef.current.onclose = () => {
+            const chatEvent: ChatEvent = { type: "status", payload: `Connection closed.` + (connectionAttempt.current > 0 ? ` Reconnecting in ${3 * 2 ** connectionAttempt.current} seconds` : ``) }
+            setChatHistory(chatHistory => chatHistory.concat(chatEvent))
+            timeoutId.current = setTimeout(() => connect(wsRef, roomId), 3000 * 2 ** connectionAttempt.current)
+            connectionAttempt.current++
+        }
+
+        wsRef.current.onerror = () => {
+        }
+
+        setWs(ws)
+    }
 
     useEffect(() => {
         console.log('ws useEffect triggered')
         if (roomId === "") { return }
+
         if (!wsRef.current || wsRef.current.readyState === WebSocket.CLOSED || wsRef.current.readyState === WebSocket.CLOSING) {
-            console.log(`Opening a new ws connection to id: ${roomId}`)
-            const ws = new WebSocket(`ws://${host}/${bytesToBase64(new TextEncoder().encode(roomId))}/ws`);
-            wsRef.current = ws
-            wsRef.current.onmessage = (event) => {
-                //const date = new Date(Date.now())
-                //const timestamp = `[${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}]`
-                const chatEvent: ChatEvent = JSON.parse(event.data)
-                console.log(chatEvent)
-                setChatHistory(chatHistory => chatHistory.concat(chatEvent))
-            }
-
-            wsRef.current.onopen = () => {
-                const chatEvent: ChatEvent = { type: "status", payload: 'Connected.' }
-                setChatHistory(chatHistory => chatHistory.concat(chatEvent))
-            }
-
-            wsRef.current.onclose = () => {
-                const chatEvent: ChatEvent = { type: "status", payload: 'Connection closed.' }
-                setChatHistory(chatHistory => chatHistory.concat(chatEvent))
-            }
-
-            wsRef.current.onerror = () => {
-            }
-            setWs(ws)
+            connect(wsRef, roomId)
         }
 
         return () => {
@@ -74,42 +86,6 @@ const ChatHeader = (props: ChatHeaderProps) => {
     return (
         <div className="relative">
             {children}
-        </div>
-    )
-}
-
-type NotificationProps = {
-    timeout: number
-    readyState: number | null
-}
-
-const Notification = (props: NotificationProps) => {
-    const { readyState, timeout } = props
-    const [isVisible, setIsVisible] = useState(false)
-    useEffect(() => {
-        const timerId = setTimeout(() => setIsVisible(false), timeout)
-        setIsVisible(true)
-        return () => {
-            clearTimeout(timerId)
-        }
-    }, [timeout, readyState])
-
-    function renderChildren(): string {
-        switch (readyState) {
-            case WebSocket.OPEN:
-                return 'Connected'
-            case WebSocket.CONNECTING:
-                return 'Connecting'
-            case WebSocket.CLOSING || WebSocket.CLOSED:
-                return 'Disconnected'
-            default:
-                return 'Failed to connect'
-        }
-    }
-
-    return (
-        <div className='p-2 absolute -top-1/4 w-full'>
-            <div className={`w-full p-2 rounded-md text-center ease-in-out bg-zinc-700 text-white motion-reduce:transition-none transition-all text-opacity-0` + (isVisible ? ' translate-y-20 text-opacity-100' : ' text-opacity-0')}>{renderChildren()}</div >
         </div>
     )
 }
