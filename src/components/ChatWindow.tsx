@@ -10,7 +10,7 @@ const ChatWindow = () => {
     const [ws, setWs] = useState<WebSocket | null>(null)
     const wsRef = useRef<WebSocket | null>(null)
     const [roomId, setRoomId] = useState("")
-    const [readyState, setReadyState] = useState<number | null>(null)
+    // const [readyState, setReadyState] = useState<number | null>(null)
     const host = import.meta.env.DEV ? 'localhost:8080' : location.host
 
     useEffect(() => {
@@ -29,23 +29,16 @@ const ChatWindow = () => {
             }
 
             wsRef.current.onopen = () => {
-                setReadyState(ws.readyState)
-                /*
                 const chatEvent: ChatEvent = { type: "status", payload: 'Connected.' }
                 setChatHistory(chatHistory => chatHistory.concat(chatEvent))
-                */
             }
 
             wsRef.current.onclose = () => {
-                setReadyState(ws.readyState)
-                /*
                 const chatEvent: ChatEvent = { type: "status", payload: 'Connection closed.' }
                 setChatHistory(chatHistory => chatHistory.concat(chatEvent))
-                */
             }
 
             wsRef.current.onerror = () => {
-                setReadyState(null)
             }
             setWs(ws)
         }
@@ -63,7 +56,6 @@ const ChatWindow = () => {
     return (
         <div id="chat-window" className={`p-2 flex flex-col gap-2 grow bg-zinc-700 rounded-xl` + (ws ? `` : ` grow-0`)}>
             <ChatHeader ws={ws} setRoomId={setRoomId}>
-                {ws ? <Notification readyState={readyState} timeout={1000} /> : null}
                 <NavigationForm setRoomId={setRoomId} />
             </ChatHeader>
             {ws ? <ChatHistory chatHistory={chatHistory} /> : null}
