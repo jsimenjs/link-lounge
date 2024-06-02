@@ -13,6 +13,8 @@ const UserMenuButton = () => {
         setIsExpanded(false)
     }
 
+    if (!user) return null
+
     return (
         <div onPointerLeave={collapse} className="relative text-white">
             <button className="bg-zinc-700 rounded-lg p-1 px-2" onClick={expand}>{user.nickname}</button>
