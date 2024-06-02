@@ -36,7 +36,7 @@ const ChatWindow = () => {
 
         wsRef.current.onclose = () => {
             const chatEvent: ChatEvent = { type: "status", payload: `Connection closed.` + (connectionAttempt.current > 0 ? ` Reconnecting in ${3 * 2 ** connectionAttempt.current} seconds` : ``) }
-            setChatHistory(chatHistory => chatHistory.concat(chatEvent))
+            if (connectionAttempt.current !== 0) setChatHistory(chatHistory => chatHistory.concat(chatEvent))
             timeoutId.current = setTimeout(() => connect(wsRef, roomId), 3000 * 2 ** connectionAttempt.current)
             connectionAttempt.current++
         }
@@ -63,6 +63,10 @@ const ChatWindow = () => {
             }
             console.log('ws cleanup function: no action')
         }
+    }, [roomId])
+
+    useEffect(() => {
+        setChatHistory([])
     }, [roomId])
 
     return (
