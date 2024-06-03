@@ -11,7 +11,7 @@ const NavigationForm = (props: NavigationFormProps) => {
     }
 
     return (
-        <form id="navigation-form" onSubmit={navigateHandler} className='relative z-50 bg-zinc-800 rounded-lg p-2 flex flex-row gap-2 text-white'>
+        <form id="navigation-form" onSubmit={navigateHandler} className='relative bg-zinc-800 rounded-lg p-2 flex flex-row gap-2 text-white'>
             <input id="destination" type="text" placeholder="Paste a URL" onChange={(e) => { setDestination(e.target.value) }} className='w-full placeholder:italic bg-inherit p-1 rounded-lg'></input>
             <button className='bg-zinc-700 p-2 text-white rounded-3xl'>
                 <SearchSVG />

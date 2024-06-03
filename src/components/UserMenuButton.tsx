@@ -5,8 +5,9 @@ import LogoutButton from "./LogoutButton"
 const UserMenuButton = () => {
     const { user } = useAuth0()
     const [isExpanded, setIsExpanded] = useState(false)
-    function expand() {
-        setIsExpanded(true)
+
+    function toggle() {
+        setIsExpanded(!isExpanded)
     }
 
     function collapse() {
@@ -16,11 +17,15 @@ const UserMenuButton = () => {
     if (!user) return null
 
     return (
-        <div onPointerLeave={collapse} className="relative text-white">
-            <button className="bg-zinc-700 rounded-lg p-1 px-2" onClick={expand}>{user.nickname}</button>
+        <div className="text-white flex flex-col">
+            {isExpanded && (<div onMouseDown={collapse} className="absolute z-10 top-0 left-0 w-full h-full"></div>)}
+            <button className="bg-zinc-700 rounded-lg p-1 px-2" onClick={toggle}>{user.nickname}</button>
             {isExpanded && (
-                <div className="absolute bg-zinc-700">
-                    <ul>
+                <div className="absolute z-10 right-4 top-16 bg-zinc-700 w-fit rounded-lg p-1">
+                    <ul className="text-right">
+                        <li className="italic">
+                            {user.email}
+                        </li>
                         <li>
                             <LogoutButton />
                         </li>
