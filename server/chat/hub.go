@@ -1,4 +1,4 @@
-package main
+package chat
 
 import (
 	"fmt"
@@ -30,7 +30,6 @@ func (h *Hub) run() {
 		// Client wants to register
 		case client := <-h.register:
 			h.clients[client] = true
-			//fmt.Printf("\033[2K\rRegistered clients: %d", len(h.clients))
             h.manager.print();
 			// Client wants to unregister
 		case client := <-h.unregister:
@@ -39,7 +38,6 @@ func (h *Hub) run() {
 				delete(h.clients, client)
 				close(client.send)
 			}
-			//fmt.Printf("\033[2K\rRegistered clients: %d", len(h.clients))
             h.manager.print();
 
 			// Client wants to broadcast a message to all registered clients

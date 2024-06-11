@@ -4,14 +4,11 @@ import (
 	"net/http"
 
 	"github.com/jsimenjs/chat-app/middleware"
+	"github.com/jsimenjs/chat-app/router"
 )
 
 func main() {
-	router := http.NewServeMux()
-	router.Handle("/", http.FileServer(http.Dir("../dist")))
-
-	manager := NewManager()
-	router.HandleFunc("/{id}/ws", manager.ServeHub)
+	router := router.New()
 
 	stack := middleware.CreateMiddlewareStack(
 		middleware.Logging,
