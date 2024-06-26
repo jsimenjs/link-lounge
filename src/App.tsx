@@ -26,7 +26,7 @@ const Header = (props: HeaderProps) => {
     const { isAuthenticated, isLoading } = props
     return (
         <div className='flex items-center'>
-            <h1 className='text-5xl text-white'>Chat</h1>
+            <h1 className='text-3xl text-white font-mono'>LinkLounge</h1>
             <div className='flex grow justify-end'>
                 {!isLoading && (isAuthenticated ? <UserMenuButton /> : <LoginButton />)}
             </div>

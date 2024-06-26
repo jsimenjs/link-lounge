@@ -2,10 +2,12 @@ package chat
 
 import (
 	"bytes"
+	"encoding/json"
 	"log"
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
@@ -27,9 +29,16 @@ var upgrader = websocket.Upgrader{
 }
 
 type Client struct {
+    id *uuid.UUID
     hub *Hub
     conn *websocket.Conn
     send chan []byte
+}
+
+type Event struct {
+    SenderId *uuid.UUID `json:"senderId,omitempty"` 
+    Type string `json:"type"`
+    Payload string `json:"payload"`
 }
 
 func (c *Client) readPump() {
@@ -49,6 +58,19 @@ func (c *Client) readPump() {
             break
         }
         message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+
+        var event Event
+        err = json.Unmarshal([]byte(message), &event)
+        if err != nil {
+            log.Printf("Failed to unmarshal json: %e", err)
+        }
+        event.SenderId = c.id
+        log.Printf("jsonData:\n%s", event)
+        message, err = json.Marshal(event)
+        if err != nil {
+            log.Printf("failed to marshal message: %e", err)
+        }
+
         c.hub.broadcast <- message
     }
 }
@@ -101,7 +123,11 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
         log.Println(err)
         return
     }
-    client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+    id, err := uuid.NewUUID()
+    if err != nil {
+        log.Println(err)
+    }
+    client := &Client{id: &id, hub: hub, conn: conn, send: make(chan []byte, 256)}
     client.hub.register <- client
 
     go client.writePump()

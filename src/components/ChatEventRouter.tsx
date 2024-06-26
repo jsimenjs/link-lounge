@@ -4,7 +4,7 @@ import ChatMessage from "./ChatMessage"
 const ChatEventRouter = (props: ChatEventRouterProps) => {
     const { chatEvent } = props
     if (chatEvent.type === 'user-event') {
-        return <ChatMessage message={chatEvent.payload} />
+        return <ChatMessage senderId={chatEvent.senderId} message={chatEvent.payload} />
 
     }
     if (chatEvent.type === 'status') {

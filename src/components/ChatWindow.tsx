@@ -30,12 +30,12 @@ const ChatWindow = () => {
                 connectionAttempt.current = 0
             }
 
-            const chatEvent: ChatEvent = { type: "status", payload: 'Connected.' }
+            const chatEvent: ChatEvent = { senderId: "none", type: "status", payload: 'Connected.' }
             setChatHistory(chatHistory => chatHistory.concat(chatEvent))
         }
 
         wsRef.current.onclose = () => {
-            const chatEvent: ChatEvent = { type: "status", payload: `Connection closed.` + (connectionAttempt.current > 0 ? ` Reconnecting in ${3 * 2 ** connectionAttempt.current} seconds` : ``) }
+            const chatEvent: ChatEvent = { senderId: "none", type: "status", payload: `Connection closed.` + (connectionAttempt.current > 0 ? ` Reconnecting in ${3 * 2 ** connectionAttempt.current} seconds` : ``) }
             if (connectionAttempt.current !== 0) setChatHistory(chatHistory => chatHistory.concat(chatEvent))
             timeoutId.current = setTimeout(() => connect(wsRef, roomId), 3000 * 2 ** connectionAttempt.current)
             connectionAttempt.current++
