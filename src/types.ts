@@ -1,7 +1,7 @@
 import { SetStateAction } from "react"
 
 export type ChatEvent = {
-    senderId: string
+    senderId?: string
     type: string
     payload: string
 }
@@ -13,7 +13,7 @@ export type ChatEventRouterProps = {
 
 
 export type ChatMessageProps = {
-    senderId: string
+    senderId?: string
     message: string
 }
 
