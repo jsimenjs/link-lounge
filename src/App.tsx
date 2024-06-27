@@ -3,14 +3,12 @@ import './App.css'
 import ChatWindow from './components/ChatWindow';
 import LoginButton from './components/LoginButton';
 import UserMenuButton from './components/UserMenuButton';
-import { useRef } from 'react';
 
 function App() {
     const { isAuthenticated, isLoading } = useAuth0();
-    const lastClickedLocation = useRef<{ x: number, y: number }>()
 
     return (
-        <div className='h-full flex flex-col gap-2 p-4 bg-zinc-800' onClick={(e) => lastClickedLocation.current = { x: e.pageX, y: e.pageY }}>
+        <div className='h-full flex flex-col gap-2 p-4 bg-zinc-800'>
             <Header isAuthenticated={isAuthenticated} isLoading={isLoading} />
             <ChatWindow />
         </div>
